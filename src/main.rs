@@ -53,16 +53,19 @@ struct priceData {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let file_path = get_first_arg()?;
+    let file_path = get_nth_arg(1)?;
     let file = File::open(file_path)?;
 
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_reader(file);
 
+    let file_path2 = get_nth_arg(2)?;
+    let file2 = File::open(file_path2)?;
+
     let mut rdr2 = csv::ReaderBuilder::new()
         .has_headers(false)
-        .from_reader(io::stdin());
+        .from_reader(file2);
 
     let mut bigGains: u64 = 0;
     let mut smallLosses: u64 = 0;
@@ -144,8 +147,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 
 /// Returns the nth positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
-fn get_first_arg() -> Result<OsString, Box<dyn Error>> {
-    match env::args_os().nth(1) {
+fn get_nth_arg(index: usize) -> Result<OsString, Box<dyn Error>> {
+    match env::args_os().nth(index) {
         None => Err(From::from("expected 1 argument, but got none")),
         Some(file_path) => Ok(file_path),
     }
