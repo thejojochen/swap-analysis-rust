@@ -55,6 +55,8 @@ struct priceData {
 fn run() -> Result<(), Box<dyn Error>> {
     let file_path = get_nth_arg(1)?;
     let file = File::open(file_path)?;
+    println!("analyzing {:?}", file);
+    println!("reminder: pst and utc time mistmatch");
 
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
@@ -74,7 +76,6 @@ fn run() -> Result<(), Box<dyn Error>> {
     let mut breakeven: u64 = 0;
     let mut dateToClosePrice = HashMap::new();
 
-    println!("starting deserializaiton");
 
     for result2 in rdr2.deserialize() {
         let record2: priceData = result2?;
@@ -82,23 +83,16 @@ fn run() -> Result<(), Box<dyn Error>> {
         dateToClosePrice.insert(record2.date, record2.close);
     }
 
-    println!("starting analysis");
-
     for result in rdr.deserialize() {
         let record: Record = result?;
         let &effPrice = &(record.Amount0 / record.Amount1).abs();
-        //let closePrice: &f64 = lookUpPrice(record.timestamp); // for now
+
 
         //println!("{}", record.timestamp);
         let mut convertedTimestamp: String = tmstmpcnv::convert_timestamp(record.timestamp);
         let mut closePrice: f64 = dateToClosePrice[&convertedTimestamp];
         let mut priceDiff: f64 = &closePrice - &effPrice;
 
-        //println!("starting to print yays");
-        //println!("{}", dateToClosePrice[&convertedTimestamp]);
-        //if(!dateToClosePrice.contains_key(&convertedTimestamp)) {println!("yay");} else {println!("nay");}
-
-        //let priceDiff: f64 = *&closePrice - effPrice;
         let tradeVol: &f64 = &record.AmountUSD;
         let mut tradeType: u64 = 0;
         if &record.Amount1 > &0.0 {
