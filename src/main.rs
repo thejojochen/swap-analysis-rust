@@ -56,8 +56,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let file_path = get_nth_arg(1)?;
     let file = File::open(file_path)?;
     println!("analyzing {:?}", file);
-    println!("reminder: pst and utc time mistmatch");
-
+    
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_reader(file);
@@ -90,6 +89,7 @@ fn run() -> Result<(), Box<dyn Error>> {
 
         //println!("{}", record.timestamp);
         let mut convertedTimestamp: String = tmstmpcnv::convert_timestamp(record.timestamp);
+        //println!("new converted timestamp: {}", convertedTimestamp);
         let mut closePrice: f64 = dateToClosePrice[&convertedTimestamp];
         let mut priceDiff: f64 = &closePrice - &effPrice;
 
