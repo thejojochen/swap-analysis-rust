@@ -68,12 +68,20 @@ fn run() -> Result<(), Box<dyn Error>> {
         .has_headers(false)
         .from_reader(file2);
 
+    let large_trade_threshold: f64 = get_nth_arg(3)?.into_string().ok().unwrap().parse()?; //could handle errors better?
     let mut bigGains: u64 = 0;
     let mut smallLosses: u64 = 0;
     let mut smallGains: u64 = 0;
     let mut bigLosses: u64 = 0;
     let mut breakeven: u64 = 0;
     let mut dateToClosePrice = HashMap::new();
+
+    // variables for second analysis
+    let mut agg_gains_large: f64 = 0.0;
+    let mut agg_gains_small: f64 = 0.0;
+    let mut agg_losses_large: f64 = 0.0;
+    let mut agg_losses_small: f64 = 0.0;
+
 
 
     for result2 in rdr2.deserialize() {
@@ -96,19 +104,19 @@ fn run() -> Result<(), Box<dyn Error>> {
         let tradeVol: &f64 = &record.AmountUSD;
         let mut tradeType: u64 = 0;
         if &record.Amount1 > &0.0 {
-            tradeType = 1
+            tradeType = 1 //buy side
         } else {
-            tradeType = 2;
+            tradeType = 2; // sell side 
         }
         if tradeType == 1 {
             if priceDiff > 0.0 {
-                if tradeVol > &5000.0 {
+                if tradeVol > &large_trade_threshold {
                     bigGains += 1;
                 } else {
                     smallGains += 1;
                 }
             } else {
-                if tradeVol > &5000.0 {
+                if tradeVol > &large_trade_threshold {
                     bigLosses += 1;
                 } else {
                     smallLosses += 1;
@@ -116,13 +124,13 @@ fn run() -> Result<(), Box<dyn Error>> {
             }
         } else if tradeType == 2 {
             if priceDiff < 0.0 {
-                if tradeVol > &5000.0 {
+                if tradeVol > &large_trade_threshold {
                     bigGains += 1;
                 } else {
                     smallGains += 1;
                 }
             } else {
-                if tradeVol > &5000.0 {
+                if tradeVol > &large_trade_threshold {
                     bigLosses += 1;
                 } else {
                     smallLosses += 1;
@@ -131,11 +139,45 @@ fn run() -> Result<(), Box<dyn Error>> {
         } else {
             breakeven += 1;
         }
+
+        // ANALYSIS TWO (aggregate gain and losses) 
+        //need to figure out math here
+        // percentage change
+        let percentage_change = ((&closePrice - &effPrice) / &effPrice);
+        //println!("{}", percentage_change);
+        let usd_diff: f64 = (tradeVol * percentage_change).abs();
+        //println!("{}", usd_diff);
+        
+        if percentage_change > 0.0 {
+            // price went up
+            if (tradeType == 1) {
+                //gain
+                if (tradeVol > &large_trade_threshold) {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
+
+        } else if tradeType == 2 {
+                //loss
+                if (tradeVol > &large_trade_threshold) {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
+            }
+        } else if percentage_change < 0.0 {
+            //price went down
+            if tradeType == 1 {
+                //loss
+                if (tradeVol > &large_trade_threshold) {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
+            } else if tradeType == 2 {
+                if (tradeVol > &large_trade_threshold) {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
+        }
+        } else {
+            return Err(From::from("problem with aggregation"));
+        }
     }
     println!(
         "bigGains:{}, smallGains:{}, bigLosses:{}, smallLosses{}, breakeven:{}",
         bigGains, smallGains, bigLosses, smallLosses, breakeven
     );
+
+    println!("aggregate usd total for large trades: {}", agg_gains_large - agg_losses_large);
+    println!("aggregate usd total for small trades: {}", agg_gains_small - agg_losses_small);
+
     Ok(())
 }
 
@@ -143,8 +185,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 /// positional arguments, then this returns an error.
 fn get_nth_arg(index: usize) -> Result<OsString, Box<dyn Error>> {
     match env::args_os().nth(index) {
-        None => Err(From::from("expected 1 argument, but got none")),
-        Some(file_path) => Ok(file_path),
+        None => Err(From::from("no arguments supplied")),
+        Some(file_path_or_threshold) => Ok(file_path_or_threshold),
     }
 }
 

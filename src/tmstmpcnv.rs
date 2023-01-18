@@ -10,7 +10,7 @@ pub fn convert_timestamp(fromSwapData: String) -> String {
     let hour: i32 = v[3].parse::<i32>().unwrap();
     let mut day: i32 = v[0].parse::<i32>().unwrap();
     if (hour + 8 > 24) {
-        let new_day = &day + 1;
+        let new_day = &day + 1; //to do: account for end of month 
         let new_string: &str = &new_day.to_string();
         v[0] = new_string;
         //println!("new day: {}", v[0]);
