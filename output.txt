@@ -1,0 +1,26 @@
+analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-62.csv", read: true, write: false }
+bigGains:14165, smallGains:13140, bigLosses:13060, smallLosses12207, breakeven:0
+aggregate usd total for large trades: 3645589.3308089226
+aggregate usd total for small trades: 51303.267629032256
+currently does not account for time zone conversion, needs unix -> date conversion
+
+analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-63.csv", read: true, write: false }
+bigGains:24234, smallGains:20147, bigLosses:22201, smallLosses18279, breakeven:0
+aggregate usd total for large trades: 122269.2925503254
+aggregate usd total for small trades: 401091.4734099901
+currently does not account for time zone conversion, needs unix -> date conversion
+
+analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-64.csv", read: true, write: false }
+bigGains:17260, smallGains:15864, bigLosses:16611, smallLosses15072, breakeven:0
+aggregate usd total for large trades: 2280771.5146663487
+aggregate usd total for small trades: inf
+currently does not account for time zone conversion, needs unix -> date conversion
+
+analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-65.csv", read: true, write: false }
+bigGains:13372, smallGains:13795, bigLosses:12669, smallLosses12657, breakeven:0
+aggregate usd total for large trades: 1092200.070626758
+aggregate usd total for small trades: 91462.14940734452
+currently does not account for time zone conversion, needs unix -> date conversion
+
+analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-66.csv", read: true, write: false }
+bad month

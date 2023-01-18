@@ -177,6 +177,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     println!("aggregate usd total for large trades: {}", agg_gains_large - agg_losses_large);
     println!("aggregate usd total for small trades: {}", agg_gains_small - agg_losses_small);
+    println!("currently does not account for time zone conversion, needs unix -> date conversion");
+    println!("");
 
     Ok(())
 }

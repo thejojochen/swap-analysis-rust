@@ -8,7 +8,7 @@
 
 cargo build 
 for file in data/*; do
-    ./target/debug/swap-analysis-rust data/$(basename "$file") ethpriceshistorical.csv 5000.0
+    ./target/debug/swap-analysis-rust data/$(basename "$file") ethpriceshistorical.csv 15000.0
 done
 
 # argument structure
