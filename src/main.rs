@@ -14,9 +14,7 @@ use serde::Deserialize;
 
 // We don't need to derive `Debug` (which doesn't require Serde), but it's a
 // good habit to do it for all your types.
-//
-// Notice that the field names in this struct are NOT in the same order as
-// the fields in the CSV data!
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct Record {
@@ -146,6 +144,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         //println!("{}", percentage_change);
         let usd_diff: f64 = (trade_vol * percentage_change).abs();
         //println!("{}", usd_diff);
+        if usd_diff == std::f64::INFINITY {continue;}
         
         if percentage_change > 0.0 {
             // price went up
@@ -166,7 +165,7 @@ fn run() -> Result<(), Box<dyn Error>> {
                 if trade_vol > &large_trade_threshold {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
         }
         } else {
-            return Err(From::from("problem with aggregation"));
+            return Err(From::from("problem with aggregation")); 
         }
     }
     println!(
@@ -174,6 +173,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         big_gains, small_gains, big_losses, small_losses, breakeven
     );
 
+    if (agg_gains_small - agg_losses_small == std::f64::INFINITY) {println!("inf value");}
     println!("aggregate usd total for large trades: {}", agg_gains_large - agg_losses_large);
     println!("aggregate usd total for small trades: {}", agg_gains_small - agg_losses_small);
     println!("");
