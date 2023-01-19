@@ -1,10 +1,14 @@
-pub fn convert_timestamp(fromSwapData: String) -> String {
+use chrono::{DateTime, TimeZone, Utc};
+
+pub fn convert_timestamp(unix_time: i64) -> String {
     //target format: Nov-14-2022
     //current format: 14.11.2022 20:35
 
-    
-    let mut v: Vec<&str> = fromSwapData.split(|c| c == '.' || c == ' ' || c == ':').collect();
-    //println!("{:?}", &v[1]);
+
+    let readable_stamp = Utc.timestamp_opt(unix_time, 0).unwrap().to_string();
+    let v: Vec<&str> = readable_stamp.split(|c| c == ' ' || c == '-' || c == ':').collect();
+    //println!("{:?}", &v);
+
 
     // let hour: i32 = v[3].parse::<i32>().unwrap();
     // let mut day: i32 = v[0].parse::<i32>().unwrap();
@@ -14,48 +18,41 @@ pub fn convert_timestamp(fromSwapData: String) -> String {
     //     v[0] = new_string;
     //     //println!("new day: {}", v[0]);
 
-    //     match v[1] {
-    //         "01" => return buildString("Jan", v[0], v[2]),
-    //         "02" => return buildString("Feb", v[0], v[2]),
-    //         "03" => return buildString("Mar", v[0], v[2]),
-    //         "04" => return buildString("Apr", v[0], v[2]),
-    //         "05" => return buildString("May", v[0], v[2]),
-    //         "06" => return buildString("Jun", v[0], v[2]),
-    //         "07" => return buildString("Jul", v[0], v[2]),
-    //         "08" => return buildString("Aug", v[0], v[2]),
-    //         "09" => return buildString("Sep", v[0], v[2]),
-    //         "10" => return buildString("Oct", v[0], v[2]),
-    //         "11" => return buildString("Nov", v[0], v[2]),
-    //         "12" => return buildString("Dec", v[0], v[2]),
-    //         _ => println!("bad month"),
-    //     }
+    match v[1] {
+        "01" => return build_string("Jan", v[2], v[0]),
+        "02" => return build_string("Feb", v[2], v[0]),
+        "03" => return build_string("Mar", v[2], v[0]),
+        "04" => return build_string("Apr", v[2], v[0]),
+        "05" => return build_string("May", v[2], v[0]),
+        "06" => return build_string("Jun", v[2], v[0]),
+        "07" => return build_string("Jul", v[2], v[0]),
+        "08" => return build_string("Aug", v[2], v[0]),
+        "09" => return build_string("Sep", v[2], v[0]),
+        "10" => return build_string("Oct", v[2], v[0]),
+        "11" => return build_string("Nov", v[2], v[0]),
+        "12" => return build_string("Dec", v[2], v[0]),
+        _ => println!("invalid month"),
+    }
 
-    // } else 
-        /*{*/ match v[1] {
-        "01" => return buildString("Jan", v[0], v[2]),
-        "02" => return buildString("Feb", v[0], v[2]),
-        "03" => return buildString("Mar", v[0], v[2]),
-        "04" => return buildString("Apr", v[0], v[2]),
-        "05" => return buildString("May", v[0], v[2]),
-        "06" => return buildString("Jun", v[0], v[2]),
-        "07" => return buildString("Jul", v[0], v[2]),
-        "08" => return buildString("Aug", v[0], v[2]),
-        "09" => return buildString("Sep", v[0], v[2]),
-        "10" => return buildString("Oct", v[0], v[2]),
-        "11" => return buildString("Nov", v[0], v[2]),
-        "12" => return buildString("Dec", v[0], v[2]),
-        _ => println!("bad month"),
-    }/*}*/
-
-    return String::from("invlaid");
+    return String::from("issue with building string"); //handle with error
 }
 
-pub fn buildString(month: &str, day: &str, year: &str) -> String {
+pub fn build_string(month: &str, day: &str, year: &str) -> String {
     let dash: &str = "-";
     let together = format!("{}{}{}{}{}", month, dash, day, dash, year);
     return together;
 }
 
-fn print_type_of<T>(_: &T) {
+fn print_type_of<T>(_: &T) { // utility (unused)
     println!("{}", std::any::type_name::<T>())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn timestamp_conversion() {
+        use super::*;
+        assert_eq!(convert_timestamp(1657552276), "Jul-11-2022");
+        //assert_eq!(Utc.timestamp_opt(1431648000, 0).unwrap().to_string(), "2015-05-15 00:00:00 UTC");
+    }
 }

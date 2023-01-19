@@ -20,29 +20,29 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct Record {
-    iD: String,
-    transaction_ID: String,
+    id: String,
+    transaction_id: String,
     timestamp: String, //in pst**
-    timestamp_Unix: String,
+    timestamp_unix: i64,
     pool: String,
     sender: String,
     recipient: String,
     origin: String,
-    Token0Symbol: String,
-    Token1Symbol: String,
-    Token0: String,
-    Token1: String,
-    SqrticeX96: Option<String>,
-    Tick: String,
-    Log_Index: String,
-    Amount0: f64,
-    Amount1: f64,
-    AmountUSD: f64,
+    token0_symbol: String,
+    token1_symbol: String,
+    token0: String,
+    token1: String,
+    sqrt_price_x96: Option<String>,
+    tick: String,
+    log_index: String,
+    amount0: f64,
+    amount1: f64,
+    amount_usd: f64,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-struct priceData {
+struct PriceData {
     date: String,
     open: f64,
     high: f64,
@@ -69,12 +69,12 @@ fn run() -> Result<(), Box<dyn Error>> {
         .from_reader(file2);
 
     let large_trade_threshold: f64 = get_nth_arg(3)?.into_string().ok().unwrap().parse()?; //could handle errors better?
-    let mut bigGains: u64 = 0;
-    let mut smallLosses: u64 = 0;
-    let mut smallGains: u64 = 0;
-    let mut bigLosses: u64 = 0;
+    let mut big_gains: u64 = 0;
+    let mut small_losses: u64 = 0;
+    let mut small_gains: u64 = 0;
+    let mut big_losses: u64 = 0;
     let mut breakeven: u64 = 0;
-    let mut dateToClosePrice = HashMap::new();
+    let mut date_to_close_price = HashMap::new();
 
     // variables for second analysis
     let mut agg_gains_large: f64 = 0.0;
@@ -85,55 +85,55 @@ fn run() -> Result<(), Box<dyn Error>> {
 
 
     for result2 in rdr2.deserialize() {
-        let record2: priceData = result2?;
+        let record2: PriceData = result2?;
         //println!("time: {}, close price: {}", record2.date, record2.close);
-        dateToClosePrice.insert(record2.date, record2.close);
+        date_to_close_price.insert(record2.date, record2.close);
     }
 
     for result in rdr.deserialize() {
         let record: Record = result?;
-        let &effPrice = &(record.Amount0 / record.Amount1).abs();
+        let &eff_price = &(record.amount0 / record.amount1).abs();
 
 
         //println!("{}", record.timestamp);
-        let mut convertedTimestamp: String = tmstmpcnv::convert_timestamp(record.timestamp);
-        //println!("new converted timestamp: {}", convertedTimestamp);
-        let mut closePrice: f64 = dateToClosePrice[&convertedTimestamp];
-        let mut priceDiff: f64 = &closePrice - &effPrice;
+        let converted_timestamp: String = tmstmpcnv::convert_timestamp(record.timestamp_unix);
+        //println!("new converted timestamp: {}", converted_timestamp);
+        let close_price: f64 = date_to_close_price[&converted_timestamp];
+        let price_diff: f64 = &close_price - &eff_price;
 
-        let tradeVol: &f64 = &record.AmountUSD;
-        let mut tradeType: u64 = 0;
-        if &record.Amount1 > &0.0 {
-            tradeType = 1 //buy side
+        let trade_vol: &f64 = &record.amount_usd;
+        let mut trade_type: u64 = 0;
+        if &record.amount1 > &0.0 {
+            trade_type = 1 //buy side
         } else {
-            tradeType = 2; // sell side 
+            trade_type = 2; // sell side 
         }
-        if tradeType == 1 {
-            if priceDiff > 0.0 {
-                if tradeVol > &large_trade_threshold {
-                    bigGains += 1;
+        if trade_type == 1 {
+            if price_diff > 0.0 {
+                if trade_vol > &large_trade_threshold {
+                    big_gains += 1;
                 } else {
-                    smallGains += 1;
+                    small_gains += 1;
                 }
             } else {
-                if tradeVol > &large_trade_threshold {
-                    bigLosses += 1;
+                if trade_vol > &large_trade_threshold {
+                    big_losses += 1;
                 } else {
-                    smallLosses += 1;
+                    small_losses += 1;
                 }
             }
-        } else if tradeType == 2 {
-            if priceDiff < 0.0 {
-                if tradeVol > &large_trade_threshold {
-                    bigGains += 1;
+        } else if trade_type == 2 {
+            if price_diff < 0.0 {
+                if trade_vol > &large_trade_threshold {
+                    big_gains += 1;
                 } else {
-                    smallGains += 1;
+                    small_gains += 1;
                 }
             } else {
-                if tradeVol > &large_trade_threshold {
-                    bigLosses += 1;
+                if trade_vol > &large_trade_threshold {
+                    big_losses += 1;
                 } else {
-                    smallLosses += 1;
+                    small_losses += 1;
                 }
             }
         } else {
@@ -141,43 +141,41 @@ fn run() -> Result<(), Box<dyn Error>> {
         }
 
         // ANALYSIS TWO (aggregate gain and losses) 
-        //need to figure out math here
         // percentage change
-        let percentage_change = ((&closePrice - &effPrice) / &effPrice);
+        let percentage_change = (&close_price - &eff_price) / &eff_price;
         //println!("{}", percentage_change);
-        let usd_diff: f64 = (tradeVol * percentage_change).abs();
+        let usd_diff: f64 = (trade_vol * percentage_change).abs();
         //println!("{}", usd_diff);
         
         if percentage_change > 0.0 {
             // price went up
-            if (tradeType == 1) {
+            if trade_type == 1 {
                 //gain
-                if (tradeVol > &large_trade_threshold) {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
+                if trade_vol > &large_trade_threshold {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
 
-        } else if tradeType == 2 {
+        } else if trade_type == 2 {
                 //loss
-                if (tradeVol > &large_trade_threshold) {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
+                if trade_vol > &large_trade_threshold {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
             }
         } else if percentage_change < 0.0 {
             //price went down
-            if tradeType == 1 {
+            if trade_type == 1 {
                 //loss
-                if (tradeVol > &large_trade_threshold) {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
-            } else if tradeType == 2 {
-                if (tradeVol > &large_trade_threshold) {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
+                if trade_vol > &large_trade_threshold {agg_losses_large += usd_diff;} else {agg_losses_small += usd_diff;}
+            } else if trade_type == 2 {
+                if trade_vol > &large_trade_threshold {agg_gains_large += usd_diff;} else {agg_gains_small += usd_diff;}
         }
         } else {
             return Err(From::from("problem with aggregation"));
         }
     }
     println!(
-        "bigGains:{}, smallGains:{}, bigLosses:{}, smallLosses{}, breakeven:{}",
-        bigGains, smallGains, bigLosses, smallLosses, breakeven
+        "big_gains:{}, small_gains:{}, big_losses:{}, small_losses{}, breakeven:{}",
+        big_gains, small_gains, big_losses, small_losses, breakeven
     );
 
     println!("aggregate usd total for large trades: {}", agg_gains_large - agg_losses_large);
     println!("aggregate usd total for small trades: {}", agg_gains_small - agg_losses_small);
-    println!("currently does not account for time zone conversion, needs unix -> date conversion");
     println!("");
 
     Ok(())
