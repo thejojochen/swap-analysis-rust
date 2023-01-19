@@ -102,13 +102,13 @@ fn run() -> Result<(), Box<dyn Error>> {
         let trade_vol: &f64 = &record.amount_usd;
         let mut trade_type: u64 = 0;
         if &record.amount1 > &0.0 {
-            trade_type = 1 //buy side
+            trade_type = 1 //buy side (enum potential)
         } else {
             trade_type = 2; // sell side 
         }
         if trade_type == 1 {
             if price_diff > 0.0 {
-                if trade_vol > &large_trade_threshold {
+                if trade_vol > &large_trade_threshold //repetitive {
                     big_gains += 1;
                 } else {
                     small_gains += 1;
@@ -144,7 +144,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         //println!("{}", percentage_change);
         let usd_diff: f64 = (trade_vol * percentage_change).abs();
         //println!("{}", usd_diff);
-        if usd_diff == std::f64::INFINITY {continue;}
+        if usd_diff == std::f64::INFINITY {continue;} //next: check if usd_diff is a valid f64 (using tmstmpvnv::type_of)
         
         if percentage_change > 0.0 {
             // price went up
