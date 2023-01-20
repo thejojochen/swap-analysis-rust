@@ -1,25 +1,25 @@
 analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-62.csv", read: true, write: false }
-big_gains:13958, small_gains:13125, big_losses:13267, small_losses12222, breakeven:0
-aggregate usd total for large trades: 550698.6565534025
-aggregate usd total for small trades: 106435.24603287643
+big_gains:9417, small_gains:17666, big_losses:9137, small_losses16352, breakeven:0
+aggregate usd total for large trades: 208029.7799192667
+aggregate usd total for small trades: 449104.12266703835
 
 analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-63.csv", read: true, write: false }
-big_gains:23802, small_gains:20164, big_losses:22633, small_losses18262, breakeven:0
-aggregate usd total for large trades: -6664586.931320578
-aggregate usd total for small trades: 497772.23192413896
+big_gains:15376, small_gains:28590, big_losses:14981, small_losses25914, breakeven:0
+aggregate usd total for large trades: -7696945.416512251
+aggregate usd total for small trades: 1530130.7171150362
 
 analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-64.csv", read: true, write: false }
-big_gains:17030, small_gains:15899, big_losses:16841, small_losses15037, breakeven:0
-aggregate usd total for large trades: -4704881.934076279
-aggregate usd total for small trades: 88886.44350240869
+big_gains:10957, small_gains:21972, big_losses:10975, small_losses20903, breakeven:0
+aggregate usd total for large trades: -4720470.855187789
+aggregate usd total for small trades: 104475.36461384688
 
 analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-65.csv", read: true, write: false }
-big_gains:13414, small_gains:13726, big_losses:12627, small_losses12726, breakeven:0
-aggregate usd total for large trades: -1177165.7881862521
-aggregate usd total for small trades: 135403.76867598668
+big_gains:8070, small_gains:19070, big_losses:7941, small_losses17412, breakeven:0
+aggregate usd total for large trades: -1600967.7083521783
+aggregate usd total for small trades: 559205.6888420591
 
 analyzing File { fd: 3, path: "/home/jonasc/swap-analysis-rust/data/ETH-USDC-WETH-005-66.csv", read: true, write: false }
-big_gains:15976, small_gains:15557, big_losses:15500, small_losses14433, breakeven:0
-aggregate usd total for large trades: -646103.4317481518
-aggregate usd total for small trades: 107066.758133044
+big_gains:10711, small_gains:20822, big_losses:10590, small_losses19343, breakeven:0
+aggregate usd total for large trades: -914607.9074421078
+aggregate usd total for small trades: 375571.23382663727
 

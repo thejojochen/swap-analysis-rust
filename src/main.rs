@@ -102,13 +102,13 @@ fn run() -> Result<(), Box<dyn Error>> {
         let trade_vol: &f64 = &record.amount_usd;
         let mut trade_type: u64 = 0;
         if &record.amount1 > &0.0 {
-            trade_type = 1 //buy side (enum potential)
+            trade_type = 1 //buy side (enum po)
         } else {
             trade_type = 2; // sell side 
         }
         if trade_type == 1 {
             if price_diff > 0.0 {
-                if trade_vol > &large_trade_threshold //repetitive {
+                if trade_vol > &large_trade_threshold {
                     big_gains += 1;
                 } else {
                     small_gains += 1;
